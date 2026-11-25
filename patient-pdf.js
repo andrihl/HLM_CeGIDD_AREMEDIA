@@ -17,6 +17,7 @@ async function makePatientPdf(meta,records,sections,val,valid){
  return {font,line,rest};}
  const sum=arr=>arr.reduce((n,x)=>n+x.h,0);
  const metaLines=wrap(meta.action_date.split('-').reverse().join('/')+' · '+meta.location+' · IPP '+r.p.ipp,full,'40px Arial');
+ for(const [label,value] of [['Médecin(s)',meta.doctor],['IDE',meta.nurses],['AREMEDIA',meta.aremedia_staff]])metaLines.push(...wrap(label+' : '+(value||'Non renseigné'),full,'40px Arial'));
  const top=190+metaLines.length*48;
  let L=layout(52);for(const size of [52,49,46,43,40,37,34]){L=layout(size);if(Math.ceil(sum(L.rest)/2)+100<=B-top)break;}
  function start(){page++;c.fillStyle='#fff';c.fillRect(0,0,W,H);c.fillStyle='#176b9b';c.fillRect(M,65,full,12);c.font='bold 45px Arial';c.fillText('AREMEDIA · CeGIDD Saint-Antoine',M,130);c.fillStyle='#182b3b';c.font='40px Arial';let y=185;for(const l of metaLines){c.fillText(l,M,y);y+=48;}return top;}
