@@ -1,0 +1,17 @@
+'use strict';
+// Local A4 raster PDF. No external conversion service or patient storage.
+async function makePatientPdf(meta,records,sections,val,valid){
+ const enc=new TextEncoder(), chunks=[], offsets=[0];let length=0,next=3;const pageIds=[];
+ const add=x=>{const b=typeof x==='string'?enc.encode(x):x;chunks.push(b);length+=b.length};
+ const obj=(id,body)=>{offsets[id]=length;add(id+' 0 obj\n');add(body);add('\nendobj\n')};
+ const stream=(id,dict,bytes)=>{offsets[id]=length;add(id+' 0 obj\n<< '+dict+' /Length '+bytes.length+' >>\nstream\n');add(bytes);add('\nendstream\nendobj\n')};
+ add('%PDF-1.4\n');obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+ const canvas=document.createElement('canvas');canvas.width=1240;canvas.height=1754;const c=canvas.getContext('2d');const W=1240,H=1754,M=65,B=1660;
+ function wrap(text,width,font){c.font=font;const lines=[];for(const paragraph of String(text).split(/\r?\n/)){let line='';for(const word of paragraph.split(/\s+/)){if(line&&c.measureText(line+' '+word).width>width){lines.push(line);line=''}if(c.measureText(word).width>width){if(line){lines.push(line);line=''}for(const ch of word){if(c.measureText(line+ch).width>width){lines.push(line);line=''}line+=ch}}else line+=(line?' ':'')+word;}lines.push(line)}return lines}
+ for(const r of records){let y=0,page=0;const font='24px Arial';
+ function start(){page++;c.fillStyle='#fff';c.fillRect(0,0,W,H);c.fillStyle='#176b9b';c.fillRect(M,50,W-2*M,8);c.font='bold 27px Arial';c.fillText('AREMEDIA · CeGIDD Saint-Antoine',M,95);c.fillStyle='#182b3b';c.font='bold 34px Arial';c.fillText('Fiche individuelle de dépistage',M,143);y=180;c.font=font;for(const l of wrap(meta.action_date+' · '+meta.location+' · IPP '+r.p.ipp,W-2*M,font)){c.fillText(l,M,y);y+=30}y+=18;}
+ async function finish(){if(!valid())throw Error('Session ou action changée');c.fillStyle='#536b75';c.font='20px Arial';c.fillText('CONFIDENTIEL — SECRET PROFESSIONNEL · Fiche page '+page,M,1710);const jpeg=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('PDF indisponible')),'image/jpeg',0.93));const bytes=new Uint8Array(await jpeg.arrayBuffer());const pid=next++,img=next++,content=next++;pageIds.push(pid);obj(pid,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 ${img} 0 R >> >> /Contents ${content} 0 R >>`);stream(img,`/Type /XObject /Subtype /Image /Width ${W} /Height ${H} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode`,bytes);stream(content,'',enc.encode('q 595.28 0 0 841.89 0 0 cm /Im0 Do Q'));}
+ function heading(name){c.fillStyle='#e7f0f5';c.fillRect(M,y,W-2*M,35);c.fillStyle='#176b9b';c.font='bold 24px Arial';c.fillText(name,M+8,y+26);y+=46;}
+ start();for(const [name,fields] of sections(r)){const entries=Object.entries(fields).filter(([k,v])=>val(v)!=='');if(!entries.length)continue;if(y+90>B){await finish();start()}heading(name);for(const [k,v] of entries){for(const l of wrap(k+' : '+val(v),W-2*M-12,font)){if(y+31>B){await finish();start();heading(name+' (suite)')}c.fillStyle='#182b3b';c.font=font;c.fillText(l,M+6,y+24);y+=30;}y+=4;}y+=9;}await finish();}
+ canvas.width=1;canvas.height=1;obj(2,'<< /Type /Pages /Count '+pageIds.length+' /Kids ['+pageIds.map(i=>i+' 0 R').join(' ')+'] >>');const xref=length;add('xref\n0 '+next+'\n0000000000 65535 f \n');for(let i=1;i<next;i++)add(String(offsets[i]).padStart(10,'0')+' 00000 n \n');add('trailer\n<< /Size '+next+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF\n');return new Blob(chunks,{type:'application/pdf'});
+}
