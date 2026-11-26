@@ -61,7 +61,12 @@ function pdfSections(r){
  if(f['Couverture sociale']==='Sécurité sociale'&&val(f['Complément'])!==''){if(f['Complément']!=='Sécurité sociale uniquement')f['Couverture sociale']+=' + '+f['Complément'];delete f['Complément'];}
  if(f['Date de naissance'])f['Date de naissance']=date(f['Date de naissance']);return f;}
  const a=compact({IPP:p.ipp,...adminFrom(p),'Indicatif':p.phone_country_code,'WhatsApp international':p.whatsapp?.international});
- const adminKeys=['IPP',...order(['identity','social'])];adminKeys.splice(adminKeys.indexOf('Téléphone')+1,0,'Indicatif');adminKeys.splice(adminKeys.indexOf('Numéro WhatsApp')+1,0,'WhatsApp international');
+ const raw=String(a['Téléphone']??'').trim();
+ const code=String(p.phone_country_code||a['Téléphone autre indicatif']||String(a['Téléphone pays']||'').split(':')[1]||'').replace(/\D/g,'');
+ const digits=raw.replace(/\D/g,'');
+ if(raw&&code&&digits){let number=raw.startsWith('+')?'+'+digits:raw.startsWith('00')?'+'+digits.slice(2):'+'+code+(code==='33'?digits.replace(/^0/,''):digits);a['Téléphone']=/^\+33[1-9]\d{8}$/.test(number)?number.slice(0,3)+' '+number.slice(3,4)+' '+number.slice(4).match(/.{2}/g).join(' '):number;}
+ delete a['Téléphone pays'];delete a['Téléphone autre indicatif'];delete a['Indicatif'];delete a['Téléphone international'];
+ const adminKeys=['IPP',...order(['identity','social'])];adminKeys.splice(adminKeys.indexOf('Numéro WhatsApp')+1,0,'WhatsApp international');
  const groups=[['Données sociodémographiques',['demographics'],['social']],['Identité de genre',['gender_identity'],['gender']],['Santé sexuelle',['symptoms','sexual_history'],['sexual']],['Antécédents médicaux',['medical_history','sti_history'],['history']],['Vaccinations',['vaccination_history','vaccines_administered'],['vacc']],['Consommations et chemsex',['substances','chemsex'],['drugs']],['Gynécologie',['gynecology'],['gyn']],['PrEP',['prep'],['prep']],['Orientations',['referrals'],['ori']]];
  const socialComment=a['Commentaires et besoins d’accompagnement social'];delete a['Commentaires et besoins d’accompagnement social'];
  return [['Identité et administration',ordered(a,adminKeys)],['Accompagnement social',{'Commentaires et besoins d’accompagnement social':socialComment}],...groups.map(([name,cols,ids])=>[name,ordered(compact(Object.assign({},...cols.map(k=>m?.[k]||{}))),order(ids))]),['Commentaires',{Commentaires:m?.comments}],['Suivi',{'Consultation terminée':!!m?.completed,'ORBIS saisi':!!t?.orbis_done,'DIAM saisi':!!t?.diam_done}]];
