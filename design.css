@@ -35,3 +35,5 @@ nav button.alt{opacity:1}nav button:not(.alt){border-color:#fff;box-shadow:0 0 0
 nav button:disabled{opacity:.55}
 
 #networkStatus{margin-bottom:4px}#offlineWait{margin-top:4px}#offlineWait p{margin:4px 0 8px}#pending6:empty{display:none}#offlineCard[hidden],#offlineWait[hidden]{display:none!important}
+
+.audit18{border:1px solid #dce5ef;border-radius:14px;padding:14px;margin:10px 0;background:#fff;overflow-wrap:anywhere}.audit18 p{margin:6px 0;font-size:.9rem}.remove-user18{background:#a32636!important;color:white!important;margin-top:12px}
