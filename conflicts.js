@@ -15,6 +15,18 @@ function action(label,fn){const b=el8('button',label,box);b.type='button';b.oncl
 if(identical)action('Valider la fiche identique',async n=>{if(!sameFields8(q.p,n.p)||q.m&&!sameFields8(q.m,n.m))throw Error('Dossier modifié, comparer de nouveau');await remove8(q)});
 if(attach)action('Compléter le questionnaire médical manquant',async n=>{if(n.a.status!=='open'||!n.p||n.m||!sameFields8(q.p,n.p))throw Error('Dossier modifié, comparer de nouveau');if(!confirm('Confirmer le rattachement du questionnaire à cet IPP ?'))return;err(await db.from('medical_records').insert({...q.m,id:q.mid,patient_id:n.p.id}));await remove8(q)});
 if(p&&!identical&&!attach)el8('p','Différences à résoudre dans le dossier serveur par un professionnel habilité. Aucun écrasement automatique.',box);
+if(p&&p.id!==q.id&&a.status==='open')action('Modifier l’IPP',async n=>{
+ if(n.a.status!=='open'||!n.p||n.p.id===q.id)throw Error('Conflit modifié : actualiser la liste');
+ const old=q.ipp;const input=prompt('IPP correct du même patient (10 chiffres). Vérifier son identité avant toute correction.',old);if(input===null)return;
+ const next=input.trim();if(!/^\d{10}$/.test(next)||next===old)throw Error('Saisir un nouvel IPP de 10 chiffres');
+ if(vault.queue.some(x=>x.id!==q.id&&x.action===q.action&&x.ipp===next))throw Error('IPP déjà présent dans les fiches locales de cette action');
+ const own=err(await db.from('patients').select('id').eq('id',q.id).maybeSingle());if(own)throw Error('Fiche déjà partiellement transférée : correction manuelle requise');
+ const duplicate=err(await db.from('patients').select('id').eq('action_id',q.action).eq('ipp',next).maybeSingle());if(duplicate)throw Error('Nouvel IPP déjà présent sur le serveur');
+ if(!confirm('Confirmer après vérification de l’identité : '+old+' → '+next+' ? Toutes les données locales seront conservées.'))return;
+ await verify8();const previous=structuredClone(vault.queue);q.ipp=next;delete q.attempted;
+ try{await persist6()}catch(e){vault.queue=previous;throw e}
+ $('actionmsg').textContent='IPP corrigé localement. Cliquer sur Synchroniser les fiches locales.';
+});
 action('Supprimer la copie locale',async()=>{if(confirm('Supprimer définitivement cette fiche locale, même si des données ne sont pas sur le serveur ?'))await remove8(q)});
 }catch(e){el8('p',e.message,box)}}}
 $('manage8').onclick=async()=>{if(busy||offlineMode)return;busy=true;try{if(!vault)await unlock6();await render8();$('dialog8').showModal()}catch(e){$('actionmsg').textContent=e.message;conflictPanel.replaceChildren()}finally{busy=false}};
