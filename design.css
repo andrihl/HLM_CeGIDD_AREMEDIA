@@ -33,3 +33,5 @@ nav button[data-role=m]{background:#305f9c;color:#fff!important}
 nav button[data-role=g]{background:#7651a1;color:#fff!important}
 nav button.alt{opacity:1}nav button:not(.alt){border-color:#fff;box-shadow:0 0 0 2px #24364c,0 3px 8px #24364c25}
 nav button:disabled{opacity:.55}
+
+#networkStatus{margin-bottom:4px}#offlineWait{margin-top:4px}#offlineWait p{margin:4px 0 8px}#pending6:empty{display:none}#offlineCard[hidden],#offlineWait[hidden]{display:none!important}
