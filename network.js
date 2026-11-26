@@ -1,0 +1,5 @@
+'use strict';
+let networkReady=navigator.onLine, probing=false;
+function networkDisplay(ok){networkReady=ok;const b=document.getElementById('networkStatus');b.textContent=ok?'Réseau disponible · enregistrement serveur uniquement':'Hors connexion / réseau indisponible · enregistrement suspendu';b.dataset.offline=String(!ok);for(const id of ['secure','login'])document.getElementById(id).inert=!ok;}
+async function probeNetwork(){if(probing)return; if(!navigator.onLine){networkDisplay(false);return;}probing=true;const c=new AbortController();const t=setTimeout(()=>c.abort(),4500);try{const r=await fetch('./network-check.txt?'+Date.now(),{cache:'no-store',signal:c.signal});networkDisplay(r.ok&&(await r.text()).trim()==='HLM_NETWORK_OK');}catch{networkDisplay(false)}finally{clearTimeout(t);probing=false}}
+window.addEventListener('offline',()=>networkDisplay(false));window.addEventListener('online',probeNetwork);window.addEventListener('pageshow',probeNetwork);setInterval(probeNetwork,10000);networkDisplay(navigator.onLine);probeNetwork();
