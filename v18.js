@@ -1,14 +1,15 @@
 'use strict';
+{const b=$('journal18');b.prepend(icon16('journal'));const c=icon16('chev');c.classList.add('chev');b.append(c);}
 async function auditExport181(kind,a,p=null){err(await db.rpc('v181_export_request',{kind,a:a||null,p}));}
 $('journal18').onclick=()=>logisticsRun(async()=>{
  if(offlineMode)throw Error('Journal disponible uniquement en ligne');
  const el=startPanel(), title=document.createElement('h2');title.textContent='Journal d’activité';el.append(title);
  const filters=document.createElement('div');filters.className='journalFilters181';
  const inputs={};for(const [k,label,type] of [['actor','Utilisateur','search'],['d1','Du','date'],['d2','Au','date'],['action','Action / lieu','search']]){const l=document.createElement('label'),i=document.createElement('input');i.type=type;l.append(label,i);filters.append(l);inputs[k]=i;}
- const event=document.createElement('select');for(const [v,t] of [['','Tous les événements'],['read','Consultation'],['insert','Création'],['update','Modification'],['delete','Suppression'],['export_request','Demande d’export']])event.add(new Option(t,v));filters.append(event);el.append(filters);
+ const event=document.createElement('select');for(const [v,t] of [['','Tous les événements'],['read','Consultation'],['insert','Création'],['update','Modification'],['delete','Suppression'],['export_request','Demande d’export'],['export_data','Données transmises pour export']])event.add(new Option(t,v));filters.append(event);el.append(filters);
  const list=document.createElement('div');list.className='journalList181';let cursor=null,scope={};
- const labels={insert:'Création',update:'Modification',delete:'Suppression',read:'Consultation',export_request:'Demande d’export',patients:'Fiche administrative',medical_records:'Fiche médicale',tracking:'Suivi ORBIS / DIAM',actions:'Action',profiles:'Habilitations',v174_sites:'Lieu',journal:'Journal',pdf_one:'PDF individuel',pdf_all:'PDF groupé',pdf_pending:'PDF dossiers en attente',xlsx_action:'Excel de suivi',stats_csv:'Statistiques CSV',stats_excel:'Statistiques Excel',stats_pdf:'Statistiques PDF',individual_csv:'CSV pseudonymisé',individual_excel:'Excel pseudonymisé'};
- const icons={read:'◉',insert:'＋',update:'✎',delete:'×',export_request:'↓'};
+ const labels={export_data:'Données préparées pour export',registry:'Liste de suivi',statistics:'Statistiques',individual_data:'Données pseudonymisées',insert:'Création',update:'Modification',delete:'Suppression',read:'Consultation',export_request:'Demande d’export',patients:'Fiche administrative',medical_records:'Fiche médicale',tracking:'Suivi ORBIS / DIAM',actions:'Action',profiles:'Habilitations',v174_sites:'Lieu',journal:'Journal',pdf_one:'PDF individuel',pdf_all:'PDF groupé',pdf_pending:'PDF dossiers en attente',xlsx_action:'Excel de suivi',stats_csv:'Statistiques CSV',stats_excel:'Statistiques Excel',stats_pdf:'Statistiques PDF',individual_csv:'CSV pseudonymisé',individual_excel:'Excel pseudonymisé'};
+ const icons={export_data:'↓',read:'◉',insert:'＋',update:'✎',delete:'×',export_request:'↓'};
  panelButton(el,'Appliquer les filtres',()=>logisticsRun(reset));el.append(list);
  const more=panelButton(el,'Afficher les événements précédents',()=>logisticsRun(load));
  async function reset(){if(inputs.d1.value&&inputs.d2.value&&inputs.d1.value>inputs.d2.value)throw Error('Période invalide');scope={actor_filter:inputs.actor.value.trim()||null,day_from:inputs.d1.value||null,day_to:inputs.d2.value||null,action_filter:inputs.action.value.trim()||null,event_filter:event.value||null};cursor=null;list.replaceChildren();await load();}
