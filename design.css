@@ -48,3 +48,13 @@ nav button:disabled{opacity:.55}
 
 /* V17.3.1 : registre compact */
 #registry section{display:block;padding:7px 9px;margin:4px 0;border-radius:10px}#registry .registry-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap}#registry .registry-head p{font-size:13px;overflow-wrap:anywhere;min-width:0}#registry .registry-head p:nth-child(2){flex:1 1 120px}#registry .registry-head p:last-child{font-size:12px}#registry .registry-number{background:#305f9c;color:white;border-radius:6px;min-width:24px;padding:3px 5px;text-align:center;font-size:12px;font-weight:600}#registry .registry-controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:4px}#registry .registry-controls:empty{display:none}#registry .registry-controls button{min-height:32px;padding:4px 9px;font-size:12px;margin:0}#registry .registry-controls label{font-size:12px;min-height:32px}#registry .registry-controls button:last-child{margin-left:auto}#registry .registry-controls button:first-of-type{background:#305f9c}#registry .registry-controls button:last-child:not(:first-child){background:#a83e50}
+
+/* V17.3.2 — distinguish registration numbers and home actions */
+#registry .registry-number{background:#526779;color:#fff}
+#actionCommands #reloadActions{background:#526779;color:#fff}
+#actionCommands #newAction{background:#087f83;color:#fff}
+#actionCommands #closeAction{background:#a65d16;color:#fff}
+#actionCommands #reopenAction{background:#7651a1;color:#fff}
+#offlineCard #prepare6,#offlineWait #enter6{background:#305f9c;color:#fff}
+#offlineCard #manage8{background:#e9edf3;color:#344054}
+#archive19{background:#6b526a;color:#fff}
