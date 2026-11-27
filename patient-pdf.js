@@ -16,7 +16,7 @@ async function makePatientPdf(meta,records,sections,val,valid){
  const rest=groups.flatMap(g=>make(g,col));
  return {font,line,rest};}
  const sum=arr=>arr.reduce((n,x)=>n+x.h,0);
- const metaLines=wrap(meta.action_date.split('-').reverse().join('/')+' · '+meta.location+' · IPP '+r.p.ipp,full,'40px Arial');
+ const metaLines=wrap(meta.action_date.split('-').reverse().join('/')+' · '+meta.location+' · N° '+r.p.numero_inscription+' · IPP '+r.p.ipp,full,'40px Arial');
  for(const [label,value] of [['Médecin(s)',meta.doctor],['IDE',meta.nurses],['AREMEDIA',meta.aremedia_staff]])metaLines.push(...wrap(label+' : '+(value||'Non renseigné'),full,'40px Arial'));
  const top=190+metaLines.length*48;
  let L=layout(52);for(const size of [52,49,46,43,40,37,34]){L=layout(size);if(Math.ceil(sum(L.rest)/2)+100<=B-top)break;}
